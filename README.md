@@ -1,4 +1,4 @@
-# WiThrottle<sup>TM</sup> and DCC-EX dual network protocol library
+# WiThrottle<sup><small>TM</small></sup> and DCC-EX dual network protocol library
 
 ***WARNING! This library is currently an incomplete work-in-progress.***
 
