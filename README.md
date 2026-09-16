@@ -1,8 +1,8 @@
-# WiThrottle<sup><small>TM</small></sup> and DCC-EX dual network protocol library
+# WiThrottle<sup><small><small>TM</small></small></sup> and DCC-EX dual network protocol library
 
 ***WARNING! This library is currently an incomplete work-in-progress.***
 
-This library implements the WiThrottle protocol (as used in JMRI and other servers), and also the DCC-EX Native protocol, allowing an device to connect to the server and act as a client (such as a dedicated fast clock device or a hardware based throttle).
+This library implements the **WiThrottle protocol** (as used in JMRI and other servers), and also the **DCC-EX Native protocol**, allowing an device to connect to the server and act as a client (such as a hardware based throttle).
 
 The implementation of this library is tested on ESP32 based devices running the Arduino framework.   There's nothing in here that's specific to the ESP32, and little of Arduino that couldn't be replaced as needed.
 
@@ -18,12 +18,12 @@ These patterns (Dependency Injection and Delegation) allow you to keep the diffe
 
 https://github.com/davidzuhn/WitPlusDccEx
 
-- Removed dependencies with external libraries (Chrono.h, ArduinoTime.h, TimeLib.h) 
+- Removed dependencies with external libraries (Chrono.h, ArduinoTime.h, TimeLib.h)
 - Added NullStream class to disable (by default) logging
 - Changed begin() method to setLogStream()
 - Added a setter method for delegate class: setDelegate()
 - Added the ability to parse roster messages and to receive the roster list via delegate class
- 
+
 ## Differences in this version from the lucadentella version of the library
 
  https://github.com/lucadentella/WiThrottle
@@ -42,10 +42,11 @@ https://github.com/davidzuhn/WitPlusDccEx
 
 ## Differences from the flash62au (WiThrottle only) version version of the library
 
-- Added support for the DCC-EX Native protocol
-- Support for the original non-multithrottle WiThrottle commands removed
+https://github.com/flash62au/WiThrottleProtocol
 
-The intent of this library is retain all the WiThtottleProtocol library methods but make the configurable in code to use either the WiThrottle Protocol or the DCC-EX native protocol.
+- Added support for the DCC-EX Native protocol
+
+The intent of this library is retain all the WiThrottleProtocol library methods but make it dynamically configurable in code to use either the WiThrottle Protocol or the DCC-EX native protocol.
 
 Given that the WiThrottle protocol expects that many loco speed/function and turnout/point actions and states are maintained by the server, but DCC-EX assumes they will be maintained by the client, this library will need to replicate all the server functionality inside the library.  WiThrottle has the concept of 'throttles' which are maintained by the server.  This will also have to be replicated in the library.
 
@@ -129,9 +130,26 @@ see https://flash62au.github.io/WitPlusDccEx/library.html
 
 ## Usage Notes
 
+### DCC-EX Native Protocol Support
+
+Given that the WiThrottle protocol expects that many loco speed/function and turnout/point actions and states are maintained by the server, but DCC-EX assumes they will be maintained by the client. WiThrottle also has the concept of 'throttles' which are maintained by the server.
+
+This library replicates all the server functionality inside the library.
+
+As a result, when using this protocol library:
+
+- You must write your client app assuming that you are talking to a WiThrottle server.
+- It will default to the WiThrottle protocol
+- If you wish to use the DCC-EX protocol, you must set the server type to DCC-EX before the first command is send to the server.
+
+==TODO==
+
+- Support track manager
+- Support separate output power control
+
 ### Multithrottle Support
 
-- When I originally added the multithrottle support I have done my best to maintain backwards compatibility.  In this fork of the libaray I have removed support for the old format.
+- When I originally added the multithrottle support I have done my best to maintain backwards compatibility.  In this fork of the library I have removed some of the support for the old format.  You should avoid using the old format.
 
 ### Delays
 
