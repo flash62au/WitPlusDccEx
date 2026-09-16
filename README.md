@@ -1,10 +1,12 @@
-# WiThrottle<sup>TM</sup> network protocol library
+# WiThrottle<sup>TM</sup> and DCC-EX dual network protocol library
+
+***WARNING! This library is currently an incomplete work-in-progress.***
 
 This library implements the WiThrottle protocol (as used in JMRI and other servers), and also the DCC-EX Native protocol, allowing an device to connect to the server and act as a client (such as a dedicated fast clock device or a hardware based throttle).
 
 The implementation of this library is tested on ESP32 based devices running the Arduino framework.   There's nothing in here that's specific to the ESP32, and little of Arduino that couldn't be replaced as needed.
 
-Refer to https://flash62au.github.io/WitPlusDccEx/index.html for additional information.
+<!-- Refer to https://flash62au.github.io/WitPlusDccEx/index.html for additional information. -->
 
 ## Basic Design Principles
 
