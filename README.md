@@ -4,6 +4,14 @@
 
 This library implements the **WiThrottle protocol** (as used in JMRI and other servers), and also the **DCC-EX Native protocol**, allowing an device to connect to the server and act as a client (such as a hardware based throttle).
 
+It builds directly on its predecessors:
+
+- [David Zuhn's WiThrottle library](https://github.com/davidzuhn/WiThrottle)
+- [lucadentella's WiThrottle library](https://github.com/lucadentella/WiThrottle)
+- [My own WiThrottleProtocol library](https://github.com/flash62au/WiThrottleProtocol)
+
+It is designed to be 100% compatible with its predecessor ([WiThrottle Protocol library](https://github.com/flash62au/WiThrottleProtocol)). i.e. you can replace WiThrottleProtocol with WitPlusDccEx in your project and it should work without any further changes.
+
 The implementation of this library is tested on ESP32 based devices running the Arduino framework.   There's nothing in here that's specific to the ESP32, and little of Arduino that couldn't be replaced as needed.
 
 <!-- Refer to https://flash62au.github.io/WitPlusDccEx/index.html for additional information. -->
@@ -16,7 +24,7 @@ These patterns (Dependency Injection and Delegation) allow you to keep the diffe
 
 ## Differences in the lucadentella version from the original library by David Zuhn
 
-https://github.com/davidzuhn/WitPlusDccEx
+https://github.com/davidzuhn/WiThrottle
 
 - Removed dependencies with external libraries (Chrono.h, ArduinoTime.h, TimeLib.h)
 - Added NullStream class to disable (by default) logging
