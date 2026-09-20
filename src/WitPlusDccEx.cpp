@@ -2007,17 +2007,41 @@ void WitPlusDccEx::dccExEmergencyStop(char multiThrottle, String address) {
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
     sendDelayedCommand("<= " + String((state==PowerOn) ? "1" : "0") + ">");
+
+    for (int i=0; i<MAX_TRACKS;i++) {
+        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
+        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
+            noTracks++;
+            trackPower[i]= (state==PowerOn) ? PowerOn : PowerOff)
+        }
+    }
 }
 
 // DONE
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state, char track) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
     sendDelayedCommand("<= " + String((state==PowerOn) ? "1" : "0") + " " + String(track) + ">");
+
+    for (int i=0; i<MAX_TRACKS;i++) {
+        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
+        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
+            noTracks++;
+            trackPower[i]= (state==PowerOn) ? PowerOn : PowerOff)
+        }
+    }
 }
 // DONE
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state, String track) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
     sendDelayedCommand("<= " + String((state==PowerOn) ? "1" : "0") + " " + track + ">");
+
+    for (int i=0; i<MAX_TRACKS;i++) {
+        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
+        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
+            noTracks++;
+            trackPower[i]= (state==PowerOn) ? PowerOn : PowerOff)
+        }
+    }
 }
 
 // TODO - DELAY
