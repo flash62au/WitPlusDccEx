@@ -85,6 +85,8 @@ Version changes in the preceding WiThrottleProtocol library
 #define MAX_WIT_THROTTLES 6
 #define MAX_FUNCTIONS 32
 
+#define MAX_TRACKS 8
+
 #define WITHROTTLE_PROTOCOL true;
 #define DCC_EX_PROTOCOL false;
 
@@ -121,6 +123,18 @@ enum RouteState {
     RouteActive = 2,
     RouteInactive = 4,
     RouteInconsistent = 8
+};
+
+enum TrackType  {
+    TRACK_TYPE_NONE = 0,
+    TRACK_TYPE_MAIN = 1,
+    TRACK_TYPE_MAIN_INV = 2,
+    TRACK_TYPE_PROG = 3,
+    TRACK_TYPE_DC = 4,
+    TRACK_TYPE_DCX = 5,
+    TRACK_TYPE_AUTO = 6,
+    TRACK_TYPE_EXT = 7,
+    TRACK_TYPE_BOOST = 8
 };
 
 ///
@@ -987,6 +1001,10 @@ class WitPlusDccEx
     /// @param len length of the command
     void dccExProcessPower(char *c, int len);
 
+    /// @brief TBA
+    /// @param trackType TBA
+    TrackType getTrackType(String typeString);
+
     // /// @brief TBA
     // /// @param c Command to process
     // /// @param len length of the command
@@ -1098,7 +1116,10 @@ class WitPlusDccEx
     bool LocomotivesFunctionIsLatching[MAX_WIT_THROTTLES][MAX_FUNCTIONS];
     bool LocomotivesFunctionStates[MAX_FUNCTIONS];
     double lastSpeedCommandSent[MAX_WIT_THROTTLES];
-   
+
+    TrackType trackType[MAX_TRACKS];
+    TrackPower trackPower[MAX_TRACKS];
+
     bool rosterListReceived;
     int rosterNumberOfEntries;
     int rosterCounter;

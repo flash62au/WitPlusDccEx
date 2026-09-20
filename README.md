@@ -10,7 +10,7 @@ It builds directly on its predecessors:
 - [lucadentella's WiThrottle library](https://github.com/lucadentella/WiThrottle)
 - [My own WiThrottleProtocol library](https://github.com/flash62au/WiThrottleProtocol)
 
-It is designed to be 100% compatible with its predecessor ([WiThrottle Protocol library](https://github.com/flash62au/WiThrottleProtocol)). i.e. you can replace WiThrottleProtocol with WitPlusDccEx in your project and it should work without any further changes.
+It is designed to be 100% compatible with its immediate predecessor ([WiThrottleProtocol library](https://github.com/flash62au/WiThrottleProtocol)). i.e. you can replace WiThrottleProtocol with WitPlusDccEx in your project and it should work without any further changes. (Note that changes will be required to make use of the DCC-EX native protocol.)
 
 The implementation of this library is tested on ESP32 based devices running the Arduino framework.   There's nothing in here that's specific to the ESP32, and little of Arduino that couldn't be replaced as needed.
 
@@ -22,7 +22,7 @@ First of all, this library implements the protocols in a non-blocking fashion.  
 
 These patterns (Dependency Injection and Delegation) allow you to keep the different parts of your sketch from becoming too intertwined with each other.  Nothing in the code that manages the push buttons or speed knobs needs to have any detailed knowledge of the WiThrottle or DCC-EX Native network protocol.
 
-## Differences in the lucadentella version from the original library by David Zuhn
+## Differences in the lucadentella version from the original library by David Zuhn to the version by lucadentella
 
 https://github.com/davidzuhn/WiThrottle
 
@@ -32,7 +32,7 @@ https://github.com/davidzuhn/WiThrottle
 - Added a setter method for delegate class: setDelegate()
 - Added the ability to parse roster messages and to receive the roster list via delegate class
 
-## Differences in this version from the lucadentella version of the library
+## Differences in this version from the lucadentella version of the library to the version by flash62au
 
  https://github.com/lucadentella/WiThrottle
 
@@ -48,15 +48,15 @@ https://github.com/davidzuhn/WiThrottle
 - Added some of the missing (previously unsupported) WiThrottle commands
 - Lots of bug fixes
 
-## Differences from the flash62au (WiThrottle only) version version of the library
+## Differences from the flash62au (WiThrottle only) version version of the library to this version
 
 https://github.com/flash62au/WiThrottleProtocol
 
 - Added support for the DCC-EX Native protocol
 
-The intent of this library is retain all the WiThrottleProtocol library methods but make it dynamically configurable in code to use either the WiThrottle Protocol or the DCC-EX native protocol.
+The intent of this library is retain all the WiThrottleProtocol library methods but make it dynamically configurable in code to use either the WiThrottle Protocol or the DCC-EX Native protocol.
 
-Given that the WiThrottle protocol expects that many loco speed/function and turnout/point actions and states are maintained by the server, but DCC-EX assumes they will be maintained by the client, this library will need to replicate all the server functionality inside the library.  WiThrottle has the concept of 'throttles' which are maintained by the server.  This will also have to be replicated in the library.
+Given that the WiThrottle protocol expects that many loco speed/function and turnout/point actions and states are maintained by the server, but DCC-EX assumes they will be maintained by the client, this library will replicate all the server functionality inside the library.  WiThrottle has the concept of 'throttles' which are maintained by the server.  This will also be replicated in the library.
 
 ---
 ---

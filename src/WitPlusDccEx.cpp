@@ -93,6 +93,11 @@ void WitPlusDccEx::init() {
         // }
         lastSpeedCommandSent[multiThrottleIndex] = 0;
     }
+    
+    for (int trackIndex=0; trackIndex<MAX_TRACKS; trackIndex++) {
+        trackType[trackIndex] = TRACK_TYPE_NONE;
+        trackPower[trackIndex] = PowerUnknown;
+    }
 
     //last Response time
     lastServerResponseTime = millis() /1000;
@@ -188,14 +193,15 @@ String WitPlusDccEx::getLocoStringFromDccAddress(String dccAddress) {
     return "L" + dccAddress;
 }
 
+// DONE - used for DCC-EX
 String WitPlusDccEx::getParameter(char *c, int startPosition, int len, int parameterNo) {
     return getParameter(c, startPosition, len, " ", parameterNo);
 }
-// used for DCC-EX
+// DONE - used for DCC-EX
 String WitPlusDccEx::getParameter(char *c, int startPosition, int len, String separator, int parameterNo) {
     String s(c);
     s = s.substring(0, len-1);
-    if (logLevel>1) { console->print("WiT+DccEx:: getParameter(): «"); console->print(s); console->println("»");}
+    // if (logLevel>1) { console->print("WiT+DccEx:: getParameter(): «"); console->print(s); console->println("»");}
 
     // loop
     int entries = -1;
@@ -217,16 +223,16 @@ String WitPlusDccEx::getParameter(char *c, int startPosition, int len, String se
         String entry = s.substring(entryStartPosition, entrySeparatorPosition);
 
         if (entries == parameterNo) {
-            if (logLevel>2) { console->print("WiT+DccEx:: getParameter() Parameter: "); console->print(parameterNo); console->print(": "); console->println(entry); }
+            // if (logLevel>2) { console->print("WiT+DccEx:: getParameter() Parameter: "); console->print(parameterNo); console->print(": "); console->println(entry); }
             return entry;
         }
         
         entryStartPosition = entrySeparatorPosition + 1;
         
-        if (logLevel>3) {
-            console->print("WiT+DccEx:: getParameter() start: "); console->println(entryStartPosition);
-            console->print("WiT+DccEx:: getParameter() len:   "); console->println(s.length());
-        }
+        // if (logLevel>3) {
+        //     console->print("WiT+DccEx:: getParameter() start: "); console->println(entryStartPosition);
+        //     console->print("WiT+DccEx:: getParameter() len:   "); console->println(s.length());
+        // }
 
         if (entryStartPosition >= s.length()) entryFound = false;
     }
@@ -278,6 +284,7 @@ String WitPlusDccEx::getParameter(char *c, int startPosition, int len, String se
 //     return ""; // Return empty string if Nth expression doesn't exist
 // }
 
+// DONE - used for DCC-EX
 int WitPlusDccEx::getSpeedFromSpeedByte(String speedByte) {
     // int dir = 0;
     int speed = 0;
@@ -299,6 +306,7 @@ int WitPlusDccEx::getSpeedFromSpeedByte(String speedByte) {
     return speed;
 }
 
+// DONE - used for DCC-EX
 Direction WitPlusDccEx::getDirectionFromSpeedByte(String speedByte) {
     Direction dir = Forward;
     int speed = 0;
@@ -314,12 +322,12 @@ Direction WitPlusDccEx::getDirectionFromSpeedByte(String speedByte) {
     return dir;
 }
 
-// DONE - OK
+// DONE
 bool WitPlusDccEx::isWiThrottleServer() {
     return serverType;
 }
 
-// DONE - OK
+// DONE
 bool WitPlusDccEx::isDccExServer() {
     return !serverType;
 }
@@ -332,7 +340,7 @@ bool WitPlusDccEx::isLocoInThrottle(char multiThrottle, String address) {
     return index != -1;
 }
 
-// DONE - OK
+// DONE
 int WitPlusDccEx::getLocoIndexInThrottle(char multiThrottle, String address) {
     if (logLevel>2) { console->print("WiT+DccEx:: getLocoIndexInThrottle(): multiThrottle: "); console->print(multiThrottle); console->print(" address: "); console->println(address); }
 
@@ -350,7 +358,7 @@ int WitPlusDccEx::getLocoIndexInThrottle(char multiThrottle, String address) {
 }
 
 
-// DONE - OK
+// DONE
 bool WitPlusDccEx::addLocoToThrottle(char multiThrottle, String address) {
     if (logLevel>0) console->println("WiT+DccEx:: addLocoToThrottle()");
 
@@ -366,7 +374,7 @@ bool WitPlusDccEx::addLocoToThrottle(char multiThrottle, String address) {
     return true;
 }
 
-// DONE - OK
+// DONE
 bool WitPlusDccEx::removeLocoFromThrottle(char multiThrottle, String address) {
     if (logLevel>0) console->println("WiT+DccEx:: removeLocoFromThrottle()");
 
@@ -393,7 +401,7 @@ bool WitPlusDccEx::removeLocoFromThrottle(char multiThrottle, String address) {
     return true;
 }
 
-// DONE - OK
+// DONE
 void WitPlusDccEx::setProtocol(bool type) {
     // True = WiThrottle Server, False = DCC-EX Native Protocol Server
     serverType = type;
@@ -406,7 +414,7 @@ void WitPlusDccEx::connect(Stream *stream) {
     connect(stream, 50, true);
 }
 
-// TODO
+// DONE
 void WitPlusDccEx::connect(Stream *stream, int delayBetweenCommandsSent) {
     if (logLevel>0) console->println("WiT+DccEx:: connect()");
 
@@ -434,7 +442,7 @@ void WitPlusDccEx::disconnect() {
     }
 }
 
-// DONE - OK
+// DONE
 void WitPlusDccEx::setDeviceName(String deviceName) {
     currentDeviceName = deviceName;
     if (isWiThrottleServer()) {
@@ -512,7 +520,7 @@ bool WitPlusDccEx::check() {
     }
 }
 
-// NO CHANGE - OK
+// NO CHANGE
 void WitPlusDccEx::sendCommand(String cmd) {
 
     if (stream) {
@@ -525,7 +533,7 @@ void WitPlusDccEx::sendCommand(String cmd) {
     }
 }
 
-// NO CHANGE - OK
+// NO CHANGE
 void WitPlusDccEx::sendDelayedCommand(String cmd) {
 
     if (stream) {
@@ -899,7 +907,7 @@ bool WitPlusDccEx::processCommand(char *c, int len) {
                 return true;
 
             case 'p': // power response
-                dccExProcessPower(c+1, len-3);
+                dccExProcessPower(c+1, len-1);
                 return true;
 
             case 'j': // //roster, turnouts / routes lists
@@ -937,6 +945,7 @@ bool WitPlusDccEx::processCommand(char *c, int len) {
                 return false;
 
             case '=': //  Track Manager response
+                dccExProcessTrackManager(c, len);
                 return true;
 
             case 'm': // alert / info message sent from server to throttle
@@ -980,7 +989,7 @@ bool WitPlusDccEx::processCommand(char *c, int len) {
 }
 
 
-// TODO - DELAY 
+// DONE - No Change
 void WitPlusDccEx::setCurrentFastTime(const String& s) {
     int t = s.toInt();
     if (currentFastTime == 0.0) {
@@ -997,7 +1006,7 @@ void WitPlusDccEx::setCurrentFastTime(const String& s) {
 }
 
 
-// TODO - DELAY 
+// NO Change - WiThrottle only
 bool WitPlusDccEx::processFastTime(char *c, int len) {
     // keep this style -- I don't validate the settings and syntax
     // as well as I could, so someday we might return false
@@ -1088,7 +1097,7 @@ void WitPlusDccEx::processMessage(char *c, int len) {
     }
 }
 
-// NO CHANGE
+// NO CHANGE - WiThrottle only
 void WitPlusDccEx::processAlert(char *c, int len) {
     if (logLevel>1) console->println("WiT+DccEx:: processAlert()");
 	
@@ -1388,8 +1397,8 @@ void WitPlusDccEx::processSpeed(char multiThrottle, const String& speedData) {
     if (logLevel>1)  console->println("WiT+DccEx:: processSpeed(): end");
 }
 
-// NO CHANGE
-// note for DCC-EX there is only one system value, so all throttles will be set to the same value.
+// NO CHANGE - WiThrottle only
+// note for DCC-EX there is only one system speedstep value, so all throttles will be set to the same value.
 void WitPlusDccEx::processSpeedSteps(char multiThrottle, const String& speedStepData) {
     if (logLevel>0) { console->print("WiT+DccEx:: processSpeedSteps(): "); console->print(multiThrottle); console->print(" : "); console->println(speedStepData); }
     int multiThrottleIndex = getMultiThrottleIndex(multiThrottle);
@@ -1707,7 +1716,7 @@ void WitPlusDccEx::processUnknownCommand(char *c, int len) {
 
 // ******************************************************************************************************
 
-// DCC-EX Specific commands  outbound
+// DCC-EX Specific commands - outbound
 
 // DONE
 void WitPlusDccEx::dccExSetDeviceName() {
@@ -1889,7 +1898,7 @@ bool WitPlusDccEx::dccExSetSpeedSteps(int steps) {
     return true;
 }
 
-// DONE - TODO - check consists work
+// IN PROGRESS - check consists work, otherwise ok
 bool WitPlusDccEx::dccExSetSpeed(char multiThrottle, int speed) {
     if (logLevel>0) { console->print("WiT+DccEx:: dccExSetSpeed(): "); console->print(multiThrottle); console->print(" : "); console->println(speed); }
 
@@ -1919,7 +1928,7 @@ bool WitPlusDccEx::dccExSetSpeed(char multiThrottle, int speed) {
     return true;
 }
 
-// DONE - TODO - check consists work
+// IN PROGRESS - check consists work, otherwise ok
 bool WitPlusDccEx::dccExSetDirection(char multiThrottle, Direction direction) {
     return dccExSetDirection(multiThrottle, "*", direction, false);
 }
@@ -2021,7 +2030,7 @@ bool WitPlusDccEx::dccExSetRoute(String address) {
     return true;
 }
 
-// DCC-EX Specific commands inbound
+// DCC-EX Specific commands - inbound
 
 // DONE
 void WitPlusDccEx::dccExProcessCommandStationInfo(char *c, int len) {
@@ -2048,18 +2057,18 @@ void WitPlusDccEx::dccExProcessCommandStationInfo(char *c, int len) {
     }
 }
 
-// TODO
+// DONE
 void WitPlusDccEx::dccExProcessEmergencyStop(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessEmergencyStop()");
 
-    for(int multiThrottleIndex = 0; multiThrottleIndex < entries; multiThrottleIndex++) {
+    for(int multiThrottleIndex = 0; multiThrottleIndex < MAX_WIT_THROTTLES; multiThrottleIndex++) {
         delegate->receivedSpeedMultiThrottle(multiThrottleIndex, 0);
         // for(int i=0;i<locomotives[multiThrottleIndex].size();i++) {
         // }
     }
 }
 
-// IN PROGRESS
+// IN PROGRESS - check consists work, otherwise ok
 void WitPlusDccEx::dccExProcessLocos(char *c, int len) {
     if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessLocos() c:"); console->println(c); }
     
@@ -2112,32 +2121,99 @@ void WitPlusDccEx::dccExProcessLocos(char *c, int len) {
     }
 }
 
-// TODO
+// TODO  
+// <p0|1>  
+// <p0|1 A..H|MAIN|PROG|DC|DCX>
+// ignoring <p 0|1 A..H|MAIN|PROG|DC|DCX>   (p space 0|1 ..)
 void WitPlusDccEx::dccExProcessPower(char *c, int len) {
-    if (logLevel>0) console->println("WiT+DccEx:: dccExProcessPower()");
+    if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() c: "); console->println(c); }
+
+    String s(c);
+    // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() s: "); console->println(s); }
+
+    bool isOn = s.charAt(1)=='1' ? true : false;
+    TrackPower state = isOn ? PowerOn : PowerOff;
+
+    // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() state: "); console->println(state); }
+
+    int start = 1; // space after command and state
+    String trackString = getParameter(c, start, len, 1);
+
+    if (trackString.length()==0) { // global power
+        for (int i=0; i<MAX_TRACKS; i++) {
+            trackPower[i] = state;
+        }
+        delegate->receivedTrackPower(state);
+
+    } else if ( (trackString.length()==1) && (trackString.charAt(0)>='A') && (trackString.charAt(0)<='H')) { // track only
+        trackPower[trackString.charAt(0)-'A'] = state;
+    
+    } else { // track type  - MAIN|PROG|DC|DCX
+        TrackType type = getTrackType(trackString);
+        
+        // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() trackString: "); console->println(trackString); }
+        // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() type: "); console->println(type); }
+
+        for (int i=0; i<MAX_TRACKS; i++) {
+            if (trackType[i]==type) trackPower[i] = state;
+        }
+    }
+
+    // now count how many there are and how many of those are on
+    int noTracks = 0;
+    int noTracksWithPowerOn = 0;
+    for (int i=0; i<MAX_TRACKS;i++) {
+        // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() i: "); console->print(i); console->print(" type: "); console->print(trackType[i]); console->print(" power: "); console->println(trackPower[i]); }
+
+        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
+        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
+            noTracks++;
+            if (trackPower[i]==PowerOn) noTracksWithPowerOn++;
+        }
+    }
+
+    // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() noTracksWithPowerOn: "); console->print(noTracksWithPowerOn); console->print(" noTracks: "); console->println(noTracks); }
+
+    if (noTracksWithPowerOn >= (noTracks*.75)) {
+        delegate->receivedTrackPower(PowerOn); 
+    } else {
+        delegate->receivedTrackPower(PowerOff); 
+    }
 }
 
-// TODO - DELAY
+TrackType WitPlusDccEx::getTrackType(String typeString) {
+    if (typeString.equals("MAIN")) return TRACK_TYPE_MAIN;
+    else if (typeString.equals("MAIN_INV")) return TRACK_TYPE_MAIN_INV;
+    else if (typeString.equals("PROG")) return TRACK_TYPE_PROG;
+    else if (typeString.equals("DC")) return TRACK_TYPE_DC;
+    else if (typeString.equals("DCX")) return TRACK_TYPE_DCX;
+    else if (typeString.equals("AUTO")) return TRACK_TYPE_AUTO;
+    else if (typeString.equals("EXT")) return TRACK_TYPE_EXT;
+    else if (typeString.equals("BOOST")) return TRACK_TYPE_BOOST;
+    return TRACK_TYPE_NONE;
+}
+
+// TODO
 void WitPlusDccEx::dccExProcessTurnouts(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts()");
 }
 
-// TODO - DELAY
+// TODO
 void WitPlusDccEx::dccExProcessTurnoutUpdate(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnoutUpdate()");
 }
 
-// TODO - DELAY
+// TODO
 void WitPlusDccEx::dccExProcessRoutes(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRoutes()");
 }
 
-// TODO - DELAY
+// TODO
 void WitPlusDccEx::dccExProcessRouteUpdate(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRouteUpdate()");
 }
 
-// TODO
+// TODO IN PROGRESS
 void WitPlusDccEx::dccExProcessRoster(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRoster()");
 
@@ -2185,7 +2261,7 @@ void WitPlusDccEx::dccExProcessRoster(char *c, int len) {
     }
 }
 
-// TODO - working on it
+// TODO IN PROGRESS
 void WitPlusDccEx::dccExProcessRosterEntry(int rosterId, String rosterName, String functionList) {
     if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessRosterEntry(): rosterName:"); console->println(rosterName); }
     
@@ -2229,6 +2305,7 @@ void WitPlusDccEx::dccExProcessRosterEntry(int rosterId, String rosterName, Stri
     }
 }
 
+// DONE
 void WitPlusDccEx::clearDccExRoster() {
     if (logLevel>0) console->println("WiT+DccEx:: clearDccExRoster()");
     rosterIds.clear();
@@ -2242,7 +2319,7 @@ void WitPlusDccEx::clearDccExRoster() {
     }
 }
 
-// WORKING
+// DONE
 int WitPlusDccEx::getLocoIndexInRoster(String address) {
     int rosterId = -1;
     if (address[0] == 'S' || address[0] == 'L') {
@@ -2267,7 +2344,7 @@ int WitPlusDccEx::getLocoIndexInRoster(int rosterId) {
     return -1;
 }
 
-// TODO
+// TODO - DELAY
 void WitPlusDccEx::dccExProcessFastClock(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts()");
 }
@@ -2277,9 +2354,32 @@ void WitPlusDccEx::dccExProcessRequestLocoId(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRequestLocoId()");
 }
 
-// TODO
+// IN PROGRESS
+// --- <= trackLetter state [cab]>
 void WitPlusDccEx::dccExProcessTrackManager(char *c, int len) {
-    if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTrackManager()");
+    if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTrackManager() c: "); console->println(c); }
+
+    int start = 1; // space after command
+    String trackString = getParameter(c, start, len, 1);
+    // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTrackManager() trackString: "); console->println(trackString); }
+
+    int trackIndex = trackString.charAt(0) - 'A';
+
+    // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTrackManager() trackIndex: "); console->println(trackIndex); }
+
+    if ( (trackIndex<0) || (trackIndex>7) ) return;
+
+    String typeString = getParameter(c, start, len, 2);
+
+    // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTrackManager() typeString: "); console->println(typeString); }
+
+
+    TrackType type = getTrackType(typeString);
+
+    // ignore the DC address if there is one
+
+    trackType[trackIndex] = type;
+
 }
 
 // ******************************************************************************************************

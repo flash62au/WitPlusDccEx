@@ -10,7 +10,7 @@
 #include <WitPlusDccEx.h>
 
 // WiFi and server configuration
-// Note: the ESP32 can only use the 2.4gHz frequences (not 5gHz) 
+// Note: the ESP32 can only use the 2.4gHz frequencies (not 5gHz) 
 // and only channels below 10
 const char* ssid = "MySSID";
 const char* password =  "MyPWD";
@@ -24,7 +24,7 @@ WitPlusDccEx WitPlusDccEx;
 void setup() {
   
   delay(5000); // this pause added only to help with debugging 
-               // to give youy a chnace to open the serila monitor.
+               // to give you a chance to open the serial monitor.
                // You would not normally have it.
 
   Serial.begin(115200);
