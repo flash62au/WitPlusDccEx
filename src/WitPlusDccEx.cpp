@@ -324,12 +324,12 @@ Direction WitPlusDccEx::getDirectionFromSpeedByte(String speedByte) {
 
 // DONE
 bool WitPlusDccEx::isWiThrottleServer() {
-    return serverType;
+    return serverType == WITHROTTLE_PROTOCOL ? true : false;
 }
 
 // DONE
 bool WitPlusDccEx::isDccExServer() {
-    return !serverType;
+    return serverType == DCCEX_PROTOCOL ? true : false;
 }
 
 // DONE
@@ -402,7 +402,7 @@ bool WitPlusDccEx::removeLocoFromThrottle(char multiThrottle, String address) {
 }
 
 // DONE
-void WitPlusDccEx::setProtocol(bool type) {
+void WitPlusDccEx::setProtocol(Protocol type) {
     // True = WiThrottle Server, False = DCC-EX Native Protocol Server
     serverType = type;
 }
@@ -421,9 +421,9 @@ void WitPlusDccEx::connect(Stream *stream, int delayBetweenCommandsSent) {
     init();
     this->stream = stream;
 
-    outboundCmdsMininumDelay = delayBetweenCommandsSent;
+    outboundCmdsMinimumDelay = delayBetweenCommandsSent;
     if (logLevel>0) {
-        console->print("WiT+DccEx:: connect(): Outbound commands minimum delay: "); console->println(outboundCmdsMininumDelay);
+        console->print("WiT+DccEx:: connect(): Outbound commands minimum delay: "); console->println(outboundCmdsMinimumDelay);
     }
 
     if (isDccExServer()) {
@@ -543,9 +543,9 @@ void WitPlusDccEx::sendDelayedCommand(String cmd) {
             outboundBuffer = outboundBuffer + cmd + '\n';
         }
 
-        if ( (outboundBuffer.length()>0) &&((millis()-outboundCmdsTimeLastSent) > outboundCmdsMininumDelay) ) {
+        if ( (outboundBuffer.length()>0) &&((millis()-outboundCmdsTimeLastSent) > outboundCmdsMinimumDelay) ) {
             if (logLevel>1) {
-                console->print("WiT+DccEx:: sendDelayedCommand() : Flushing outbound buffer - delay: "); console->print(outboundCmdsMininumDelay); console->print(" Buffer: ");  console->println(outboundBuffer);
+                console->print("WiT+DccEx:: sendDelayedCommand() : Flushing outbound buffer - delay: "); console->print(outboundCmdsMinimumDelay); console->print(" Buffer: ");  console->println(outboundBuffer);
             }
             int end = outboundBuffer.indexOf("\n");
             String thisCmd = outboundBuffer; // default to sending the lot
@@ -555,7 +555,7 @@ void WitPlusDccEx::sendDelayedCommand(String cmd) {
                 outboundBuffer = outboundBuffer.substring(end);
                 if (outboundBuffer.length()>0) {
                     if (logLevel>1) {
-                        console->print("WiT+DccEx:: sendDelayedCommand() : deferring cmds: "); console->println(outboundCmdsMininumDelay); 
+                        console->print("WiT+DccEx:: sendDelayedCommand() : deferring cmds: "); console->println(outboundCmdsMinimumDelay); 
                         console->println("WiT+DccEx:: Buffer: ");  console->println(outboundBuffer);
                     }
                 }
@@ -1069,8 +1069,8 @@ void WitPlusDccEx::processServerType(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: processServerType()");
 	
     if (delegate && len > 0) {
-        String serverType = String(c);
-        delegate->receivedServerType(serverType);
+        String typeStr = String(c);
+        delegate->receivedServerType(typeStr);
     }
 }
 
@@ -2004,52 +2004,32 @@ void WitPlusDccEx::dccExEmergencyStop(char multiThrottle, String address) {
 }
 
 // DONE
+// turn on all tracks
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
-    sendDelayedCommand("<= " + String((state==PowerOn) ? "1" : "0") + ">");
-
-    for (int i=0; i<MAX_TRACKS;i++) {
-        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
-        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
-            noTracks++;
-            trackPower[i]= (state==PowerOn) ? PowerOn : PowerOff)
-        }
-    }
+    sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + ">");
 }
 
 // DONE
+// turn on a specific track letter
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state, char track) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
-    sendDelayedCommand("<= " + String((state==PowerOn) ? "1" : "0") + " " + String(track) + ">");
-
-    for (int i=0; i<MAX_TRACKS;i++) {
-        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
-        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
-            noTracks++;
-            trackPower[i]= (state==PowerOn) ? PowerOn : PowerOff)
-        }
-    }
+    sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + " " + String(track) + ">");
 }
+
 // DONE
+// turn on a specific type of track
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state, String track) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
-    sendDelayedCommand("<= " + String((state==PowerOn) ? "1" : "0") + " " + track + ">");
-
-    for (int i=0; i<MAX_TRACKS;i++) {
-        if ( (trackType[i]==TRACK_TYPE_MAIN) || (trackType[i]==TRACK_TYPE_MAIN_INV) 
-        || (trackType[i]==TRACK_TYPE_DC) || (trackType[i]==TRACK_TYPE_DCX) ) {
-            noTracks++;
-            trackPower[i]= (state==PowerOn) ? PowerOn : PowerOff)
-        }
-    }
+    sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + " " + track + ">");
 }
 
-// TODO - DELAY
+// TODO
 bool WitPlusDccEx::dccExSetTurnout(String address, TurnoutAction action) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTurnout()");
     return true;
 }
-// TODO - DELAY
+// TODO
 bool WitPlusDccEx::dccExSetRoute(String address) {
     return true;
 }
@@ -2145,7 +2125,7 @@ void WitPlusDccEx::dccExProcessLocos(char *c, int len) {
     }
 }
 
-// TODO  
+// DONE  
 // <p0|1>  
 // <p0|1 A..H|MAIN|PROG|DC|DCX>
 // ignoring <p 0|1 A..H|MAIN|PROG|DC|DCX>   (p space 0|1 ..)
@@ -2205,6 +2185,7 @@ void WitPlusDccEx::dccExProcessPower(char *c, int len) {
     }
 }
 
+// DONE
 TrackType WitPlusDccEx::getTrackType(String typeString) {
     if (typeString.equals("MAIN")) return TRACK_TYPE_MAIN;
     else if (typeString.equals("MAIN_INV")) return TRACK_TYPE_MAIN_INV;

@@ -87,9 +87,6 @@ Version changes in the preceding WiThrottleProtocol library
 
 #define MAX_TRACKS 8
 
-#define WITHROTTLE_PROTOCOL true;
-#define DCC_EX_PROTOCOL false;
-
 /// @brief Loco/Throttle Direction options
 enum Direction {
     Reverse = 0,
@@ -135,6 +132,11 @@ enum TrackType  {
     TRACK_TYPE_AUTO = 6,
     TRACK_TYPE_EXT = 7,
     TRACK_TYPE_BOOST = 8
+};
+
+enum Protocol {
+    WITHROTTLE_PROTOCOL = true,
+    DCCEX_PROTOCOL = false
 };
 
 ///
@@ -410,7 +412,7 @@ class WitPlusDccEx
 
     /// @brief set the protocol to use
     /// @param bool type - true = WiThrottle false = DCC-EX
-    void setProtocol(bool type = true);
+    void setProtocol(Protocol type = WITHROTTLE_PROTOCOL);
 
     /// @brief Connect to the server - universal for all protocols
     /// @param stream pointer to the stream
@@ -720,7 +722,7 @@ class WitPlusDccEx
     
     bool server;
 
-    bool serverType = WITHROTTLE_PROTOCOL;  // True = WiThrottle Server, False = DCC-EX Native Protocol Server
+    Protocol serverType = WITHROTTLE_PROTOCOL;  // True = WiThrottle Server, False = DCC-EX Native Protocol Server
     
 	Stream *stream;
     int logLevel = 1;
@@ -728,7 +730,7 @@ class WitPlusDccEx
 	NullStream nullStream;
     String outboundBuffer;
     double outboundCmdsTimeLastSent;
-    int outboundCmdsMininumDelay;
+    int outboundCmdsMinimumDelay;
     bool commandsNeedLeadingCrLf = false;
 	
 	WitPlusDccExDelegate *delegate = NULL;
