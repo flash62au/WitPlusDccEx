@@ -962,8 +962,8 @@ bool WitPlusDccEx::processCommand(char *c, int len) {
                 processUnknownCommand(c, len);
                 return false;
 
-            case 'X': // inactive sensor
-                if (len==1) return true; // <X> just ignore it
+            case 'X': // error
+                if (len==3) return true; // <X> just ignore it
                 processUnknownCommand(c, len);
                 return false;
 
@@ -972,7 +972,7 @@ bool WitPlusDccEx::processCommand(char *c, int len) {
                 processUnknownCommand(c, len);
                 return false;
 
-            case '#': // number of supported cabs
+                case '#': // number of supported cabs
                 // not currently supported
                 // used as the defacto heartbeat, so ignore it
                 // processUnknownCommand(c, len);
@@ -1047,7 +1047,7 @@ bool WitPlusDccEx::processHeartbeat(char *c, int len) {
         heartbeatChanged = true;
         changed = true;
         if (delegate) {
-            delegate->heartbeatConfig(heartbeatPeriod);
+            if (delegate) delegate->heartbeatConfig(heartbeatPeriod);
         }
     }
     return changed;
@@ -1060,7 +1060,7 @@ void WitPlusDccEx::processProtocolVersion(char *c, int len) {
 
     if (delegate && len > 0) {
         String protocolVersion = String(c);
-        delegate->receivedVersion(protocolVersion);
+        if (delegate) delegate->receivedVersion(protocolVersion);
     }
 }
 
@@ -1070,7 +1070,7 @@ void WitPlusDccEx::processServerType(char *c, int len) {
 	
     if (delegate && len > 0) {
         String typeStr = String(c);
-        delegate->receivedServerType(typeStr);
+        if (delegate) delegate->receivedServerType(typeStr);
     }
 }
 
@@ -1083,7 +1083,7 @@ void WitPlusDccEx::processServerDescription(char *c, int len) {
         String serverDescription;
 
         serverDescription = String(c);
-        delegate->receivedServerDescription(serverDescription);
+        if (delegate) delegate->receivedServerDescription(serverDescription);
     }
 }
 
@@ -1093,7 +1093,7 @@ void WitPlusDccEx::processMessage(char *c, int len) {
 	
     if (delegate && len > 0) {
         String message = String(c);
-        delegate->receivedMessage(message);
+        if (delegate) delegate->receivedMessage(message);
     }
 }
 
@@ -1103,7 +1103,7 @@ void WitPlusDccEx::processAlert(char *c, int len) {
 	
     if (delegate && len > 0) {
         String alert = String(c);
-        delegate->receivedAlert(alert);
+        if (delegate) delegate->receivedAlert(alert);
     }
 }
 
@@ -1115,7 +1115,7 @@ void WitPlusDccEx::processWebPort(char *c, int len) {
         String port_string = String(c);
         int port = port_string.toInt();
 
-        delegate->receivedWebPort(port);
+        if (delegate) delegate->receivedWebPort(port);
     }
 }
 
@@ -1319,9 +1319,9 @@ void WitPlusDccEx::processFunctionState(char multiThrottle, const String& functi
         }
         else {
             if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-                delegate->receivedFunctionState(funcNum, state);
+                if (delegate) delegate->receivedFunctionState(funcNum, state);
             } else {
-                delegate->receivedFunctionStateMultiThrottle(multiThrottle,funcNum, state);
+                if (delegate) delegate->receivedFunctionStateMultiThrottle(multiThrottle,funcNum, state);
             }
         }
     }
@@ -1362,9 +1362,9 @@ void WitPlusDccEx::processRosterFunctionListEntries(char multiThrottle, const St
     } 
 
     if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-        delegate->receivedRosterFunctionList(functions);
+        if (delegate) delegate->receivedRosterFunctionList(functions);
     } else {
-        delegate->receivedRosterFunctionListMultiThrottle(multiThrottle, functions);
+        if (delegate) delegate->receivedRosterFunctionListMultiThrottle(multiThrottle, functions);
     }
 
     if (logLevel>1) console->println("WiT+DccEx:: processRosterFunctionListEntries(): end");
@@ -1388,9 +1388,9 @@ void WitPlusDccEx::processSpeed(char multiThrottle, const String& speedData) {
         currentSpeed[multiThrottleIndex] = speed;
         if (multiThrottle == DEFAULT_MULTITHROTTLE) {
             currentSpeed[multiThrottleIndex] = speed;
-            delegate->receivedSpeed(speed);
+            if (delegate) delegate->receivedSpeed(speed);
         } else {
-            delegate->receivedSpeedMultiThrottle(multiThrottle, speed);
+            if (delegate) delegate->receivedSpeedMultiThrottle(multiThrottle, speed);
         }
     }
 
@@ -1413,10 +1413,10 @@ void WitPlusDccEx::processSpeedSteps(char multiThrottle, const String& speedStep
         }
         else {
             if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-                delegate->receivedSpeedSteps(steps);
+                if (delegate) delegate->receivedSpeedSteps(steps);
                 speedSteps[0] = steps;
             } else {
-                delegate->receivedSpeedStepsMultiThrottle(multiThrottle, steps);
+                if (delegate) delegate->receivedSpeedStepsMultiThrottle(multiThrottle, steps);
                 speedSteps[multiThrottleIndex] = steps;
             }
         }
@@ -1446,9 +1446,9 @@ void WitPlusDccEx::processDirection(char multiThrottle, const String& directionS
         }
 
         if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-            delegate->receivedDirection(currentDirection[multiThrottleIndex]);
+            if (delegate) delegate->receivedDirection(currentDirection[multiThrottleIndex]);
         } else {
-            delegate->receivedDirectionMultiThrottle(multiThrottle, currentDirection[multiThrottleIndex]);
+            if (delegate) delegate->receivedDirectionMultiThrottle(multiThrottle, currentDirection[multiThrottleIndex]);
         }
     }
 
@@ -1478,9 +1478,9 @@ void WitPlusDccEx::processDirection(char multiThrottle, String& address, const S
                 locomotivesFacing[multiThrottleIndex][i] = direction;
 
                 if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-                    delegate->receivedDirection(address, direction);
+                    if (delegate) delegate->receivedDirection(address, direction);
                 } else {
-                    delegate->receivedDirectionMultiThrottle(multiThrottle, address, direction);
+                    if (delegate) delegate->receivedDirectionMultiThrottle(multiThrottle, address, direction);
                 }
                 break;
             }
@@ -1505,7 +1505,7 @@ void WitPlusDccEx::processTrackPower(char *c, int len) {
                 state = PowerOn;
             }
 
-            delegate->receivedTrackPower(state);
+            if (delegate) delegate->receivedTrackPower(state);
         }
     }
 }
@@ -1536,17 +1536,17 @@ void WitPlusDccEx::processAddRemove(char multiThrottle, char *c, int len) {
 
         if (add) {
             if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-                delegate->addressAdded(address, entry);
+                if (delegate) delegate->addressAdded(address, entry);
             } else {
-                delegate->addressAddedMultiThrottle(multiThrottle, address, entry);
+                if (delegate) delegate->addressAddedMultiThrottle(multiThrottle, address, entry);
             }
         }
         if (remove) {
             if (entry.equals("d\n") || entry.equals("r\n")) {
                 if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-                    delegate->addressRemoved(address, entry);
+                    if (delegate) delegate->addressRemoved(address, entry);
                 } else {
-                    delegate->addressRemovedMultiThrottle(multiThrottle, address, entry);
+                    if (delegate) delegate->addressRemovedMultiThrottle(multiThrottle, address, entry);
                 }
             } else {
                 console->printf("WiT+DccEx:: malformed address removal: command is %s\n", entry.c_str());
@@ -1580,9 +1580,9 @@ void WitPlusDccEx::processStealNeeded(char multiThrottle, char *c, int len) {
         String entry   = s.substring(p+3);
 
         if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-            delegate->addressStealNeeded(address, entry);
+            if (delegate) delegate->addressStealNeeded(address, entry);
         } else {
-            delegate->addressStealNeededMultiThrottle(multiThrottle, address, entry);
+            if (delegate) delegate->addressStealNeededMultiThrottle(multiThrottle, address, entry);
         }
     }
 
@@ -1609,7 +1609,7 @@ void WitPlusDccEx::processTurnoutAction(char *c, int len) {
             state = TurnoutInconsistent;
         }
 
-        delegate->receivedTurnoutAction(systemName, state);
+        if (delegate) delegate->receivedTurnoutAction(systemName, state);
     }
 }
 
@@ -1627,7 +1627,7 @@ void WitPlusDccEx::processRouteAction(char *c, int len) {
             state = RouteInactive;
         }
 
-        delegate->receivedRouteAction(systemName, state);
+        if (delegate) delegate->receivedRouteAction(systemName, state);
     }
 }
 
@@ -1709,7 +1709,7 @@ void WitPlusDccEx::requireHeartbeat(bool needed) {
 void WitPlusDccEx::processUnknownCommand(char *c, int len) {
     if (delegate && len > 0) {
         String unknownCommand = String(c);
-        delegate->receivedUnknownCommand(unknownCommand);
+        if (delegate) delegate->receivedUnknownCommand(unknownCommand);
     }
     heartbeatTimer = millis();
 }
@@ -1801,9 +1801,9 @@ bool WitPlusDccEx::dccExSendAddLocomotive(char multiThrottle, String address) {
                 }
 
                 if (multiThrottle == DEFAULT_MULTITHROTTLE) {
-                    delegate->receivedRosterFunctionList(functions);
+                    if (delegate) delegate->receivedRosterFunctionList(functions);
                 } else {
-                    delegate->receivedRosterFunctionListMultiThrottle(multiThrottle, functions);
+                    if (delegate) delegate->receivedRosterFunctionListMultiThrottle(multiThrottle, functions);
                 }
             }
         }
@@ -2024,11 +2024,49 @@ void WitPlusDccEx::dccExSetTrackPower(TrackPower state, String track) {
     sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + " " + track + ">");
 }
 
-// TODO
+// DONE
 bool WitPlusDccEx::dccExSetTurnout(String address, TurnoutAction action) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTurnout()");
+
+    TurnoutState currentState = TurnoutClosed;
+    String newStateString = "T";
+
+    int turnoutId = address.toInt();
+    int turnoutIndex = getTurnoutIndexInTurnoutsList(turnoutId);
+
+    if (turnoutIndex>=0) {
+        currentState = turnoutsListStates[turnoutIndex];
+    } // if we don't have it in our list, assume it is currently closed
+
+    switch (action) {
+        case TurnoutClose: {
+            newStateString = "C";
+            break;
+        }
+        case TurnoutToggle: {
+            if (currentState==TurnoutClosed) {
+                newStateString = "T";
+            } else { 
+                newStateString = "C";
+            }
+            break;
+        }
+        case TurnoutThrow:
+        default: {
+            // newStateString = "T"; // already the default
+            break;
+        }
+    }
+
+    // Note: Don't set the state in the internal array here,
+    // as the new state will be sent back from the server if it worked.
+
+    String cmd = "<T " + address + " " + newStateString +">";
+    sendDelayedCommand(cmd);
+
     return true;
 }
+
 // TODO
 bool WitPlusDccEx::dccExSetRoute(String address) {
     return true;
@@ -2052,12 +2090,12 @@ void WitPlusDccEx::dccExProcessCommandStationInfo(char *c, int len) {
         }
         if (versionEnd > 0) {
             String protocolVersion = s.substring(10, versionEnd);
-            delegate->receivedVersion(protocolVersion);
+            if (delegate) delegate->receivedVersion(protocolVersion);
         }
 
         String serverDescription = s.substring(versionEnd + 3, len);
-        delegate->receivedServerDescription(serverDescription);
-        delegate->receivedServerType("DCC-EX");
+        if (delegate) delegate->receivedServerDescription(serverDescription);
+        if (delegate) delegate->receivedServerType("DCC-EX");
     }
 }
 
@@ -2066,7 +2104,7 @@ void WitPlusDccEx::dccExProcessEmergencyStop(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessEmergencyStop()");
 
     for(int multiThrottleIndex = 0; multiThrottleIndex < MAX_WIT_THROTTLES; multiThrottleIndex++) {
-        delegate->receivedSpeedMultiThrottle(multiThrottleIndex, 0);
+        if (delegate) delegate->receivedSpeedMultiThrottle(multiThrottleIndex, 0);
         // for(int i=0;i<locomotives[multiThrottleIndex].size();i++) {
         // }
     }
@@ -2102,9 +2140,11 @@ void WitPlusDccEx::dccExProcessLocos(char *c, int len) {
             if (timeDifference > 1000) {
                 int speed = getSpeedFromSpeedByte(speedByte);
                     if (logLevel>2) { console->print("WiT+DccEx:: dccExProcessLocos() speed: "); console->println(speed); }
-                if ( (speed >= 0) && (speed<127) ) delegate->receivedSpeedMultiThrottle(multiThrottle, speed);
+                if ( (speed >= 0) && (speed<127) ) {
+                    if (delegate) delegate-> receivedSpeedMultiThrottle(multiThrottle, speed);
+                }
                 Direction dir = getDirectionFromSpeedByte(speedByte);
-                delegate->receivedDirectionMultiThrottle(multiThrottle, dir);
+                if (delegate) delegate->receivedDirectionMultiThrottle(multiThrottle, dir);
             }
             if ( (getLocoIndexInThrottle(multiThrottle, loco) == 0) && (functMap.length()>0) ) { // lead loco
                 int functMapValue = functMap.toInt();
@@ -2115,7 +2155,7 @@ void WitPlusDccEx::dccExProcessLocos(char *c, int len) {
                     if (bit != LocomotivesFunctionStates[funcNum]) {
                         if (logLevel>2) { console->print("WiT+DccEx:: dccExProcessLocos(): funcNum: "); console->print(funcNum); console->print(" bit: "); console->println((bit ? "true" : "false")); }
 
-                        delegate->receivedFunctionStateMultiThrottle(multiThrottle, funcNum, bit);                         
+                        if (delegate) delegate->receivedFunctionStateMultiThrottle(multiThrottle, funcNum, bit);                         
                         LocomotivesFunctionStates[funcNum] = bit;
                     }
                 }
@@ -2147,7 +2187,7 @@ void WitPlusDccEx::dccExProcessPower(char *c, int len) {
         for (int i=0; i<MAX_TRACKS; i++) {
             trackPower[i] = state;
         }
-        delegate->receivedTrackPower(state);
+        if (delegate) delegate->receivedTrackPower(state);
 
     } else if ( (trackString.length()==1) && (trackString.charAt(0)>='A') && (trackString.charAt(0)<='H')) { // track only
         trackPower[trackString.charAt(0)-'A'] = state;
@@ -2179,9 +2219,9 @@ void WitPlusDccEx::dccExProcessPower(char *c, int len) {
     // if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessPower() noTracksWithPowerOn: "); console->print(noTracksWithPowerOn); console->print(" noTracks: "); console->println(noTracks); }
 
     if (noTracksWithPowerOn >= (noTracks*.75)) {
-        delegate->receivedTrackPower(PowerOn); 
+        if (delegate) delegate->receivedTrackPower(PowerOn); 
     } else {
-        delegate->receivedTrackPower(PowerOff); 
+        if (delegate) delegate->receivedTrackPower(PowerOff); 
     }
 }
 
@@ -2198,14 +2238,150 @@ TrackType WitPlusDccEx::getTrackType(String typeString) {
     return TRACK_TYPE_NONE;
 }
 
-// TODO
+// DONE
+// <jT>
+// <jT id1 id2 id3 ...>
+// <jT id X>
+// <jt id state ["desc"]>
 void WitPlusDccEx::dccExProcessTurnouts(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts()");
+
+    String s(c);
+    int start = 1; // space after command
+    turnoutsListCounter = 0;
+    int turnoutsCount = getNumberOfParameters(c, start, len);
+
+    if (turnoutsCount == 0) { // no defined turnouts/points <jT>
+        turnoutsListNumberOfEntries = 0;
+        clearDccExTurnouts();
+        if (delegate) delegate->receivedTurnoutEntries(0);
+
+    } else { // turnouts list  <jT id1 id2 id3 ...>
+        bool isIndividualTurnout = false;
+        String turnoutIdString = getParameter(c,start,len, 0);
+        String turnoutState = getParameter(c,start,len, 1);
+        if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTurnouts() turnoutId: "); console->print(turnoutIdString); console->print(" state: "); console->println(turnoutState); }
+
+        if ( (turnoutsCount==3) || (turnoutsCount== 4) ) { // possible individual
+            if (turnoutIdString.equals("X")) return; // unknown id
+            if ( (turnoutState.equals("C")) || (turnoutState.equals("T")) ) {
+                isIndividualTurnout = true;
+            }
+        }
+        if (!isIndividualTurnout) { // list
+            if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessTurnouts() processing list"); }
+            
+            if (!turnoutsListReceived) {
+                clearDccExTurnouts();
+                turnoutsListNumberOfEntries = turnoutsCount;
+                if (delegate) delegate->receivedTurnoutEntries(turnoutsCount);
+                for (int i=0; i<turnoutsCount; i++) {
+                    int turnoutId = getParameter(c, start, len, i).toInt();
+                    turnoutsListIds.push_back(turnoutId);
+                    turnoutsListNames.push_back("");
+                    turnoutsListEntriesReceived.push_back(false);
+                    turnoutsListStates.push_back(TurnoutInconsistent);
+
+                    dccExSendRequestTurnoutEntry(turnoutId);
+                    if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTurnouts() id: "); console->println(turnoutId); }
+                }
+                turnoutsListIndex = -1;
+
+            } // else ignore it if we already have it
+
+        } else { // <jt id state ["desc"]>  individual turnout/point
+            if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts() Individual Loco");
+            String turnoutName = getParameter(c,start,len, 2);
+            dccExProcessTurnoutEntry(turnoutIdString.toInt(), turnoutName, turnoutState.equals("C") ? TurnoutClosed : TurnoutThrown);
+        }
+    }
 }
 
-// TODO
+// DONE
+void WitPlusDccEx::dccExProcessTurnoutEntry(int turnoutId, String turnoutName, TurnoutState turnoutState) {
+    if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnoutEntry()");
+
+    turnoutsListIndex = getTurnoutIndexInTurnoutsList(turnoutId);
+    if (turnoutsListIndex<0) return; // not in the list
+
+    if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTurnoutEntry(): turnoutsListIndex:"); console->println(turnoutsListIndex); }
+
+    turnoutsListNames[turnoutsListIndex] = turnoutName.substring(1,turnoutName.length()-2);
+    turnoutsListStates[turnoutsListIndex] = turnoutState;
+    turnoutsListEntriesReceived[turnoutsListIndex] = true; 
+
+    turnoutsListCounter++;
+    if (delegate) {
+        bool fullyReceived = true;
+        if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessTurnoutEntry(): check start");}
+        for (int i=0; i<turnoutsListNumberOfEntries; i++) {
+            if (!turnoutsListEntriesReceived[i]) {
+                fullyReceived = false;
+                break;
+            }
+        }
+
+        if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessTurnoutEntry(): check end");}
+
+        if (fullyReceived) {  // have them all now
+            if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnoutEntry(): all Turnout/Point entries received");
+            for (int i=0; i<turnoutsListNumberOfEntries; i++) {
+                if (delegate) delegate->receivedTurnoutEntry(i, String(turnoutsListIds[i]), turnoutsListNames[i], turnoutsListIds[i]);
+            }
+        }
+    }
+    if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessTurnoutEntry(): end");}
+
+}
+
+// DONE
+void WitPlusDccEx::clearDccExTurnouts() {
+    // if (logLevel>0) console->println("WiT+DccEx:: clearDccExRoster()");
+
+    turnoutsListIds.clear();
+    turnoutsListNames.clear();
+    turnoutsListEntriesReceived.clear();
+    turnoutsListStates.clear();
+    turnoutsListNumberOfEntries = 0;
+}
+
+// DONE
+int WitPlusDccEx::getTurnoutIndexInTurnoutsList(int turnoutId) {
+    for(int i=0;i<turnoutsListNumberOfEntries;i++) {
+        // if (logLevel>0) { console->print("WiT+DccEx:: getTurnoutIndexInTurnoutsLst(): turnoutsListIds[i]:"); console->println(turnoutsListIds[i]); }
+    
+        if (turnoutsListIds[i] == turnoutId) {
+            return i;
+        }
+    } 
+    return -1;
+}
+
+// DONE
+// <H id state>
 void WitPlusDccEx::dccExProcessTurnoutUpdate(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnoutUpdate()");
+
+    String s(c);
+    int start = 1; // space after command
+    String idString = getParameter(c,start,len, 0);
+    // String newStateString = getParameter(c,start,len, 1);
+
+    int turnoutId = idString.toInt();
+    TurnoutState newTurnoutState = getParameter(c,start,len, 1).equals("C") ? TurnoutClosed : TurnoutThrown;
+
+    int turnoutIndex = getTurnoutIndexInTurnoutsList(turnoutId);
+
+    if (turnoutIndex<0) { // not in the list, so add it
+        turnoutsListIds.push_back(turnoutId);
+        turnoutsListNames.push_back("-" + String(turnoutId)+"-");
+        turnoutIndex = getTurnoutIndexInTurnoutsList(turnoutId);
+    }
+
+    if (turnoutIndex>=0) { // we have it in the list
+        turnoutsListStates[turnoutIndex] = newTurnoutState;
+    }
+    if (delegate) delegate->receivedTurnoutAction(idString, newTurnoutState);
 }
 
 // TODO
@@ -2218,7 +2394,7 @@ void WitPlusDccEx::dccExProcessRouteUpdate(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRouteUpdate()");
 }
 
-// TODO IN PROGRESS
+// DONE 
 void WitPlusDccEx::dccExProcessRoster(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRoster()");
 
@@ -2266,7 +2442,7 @@ void WitPlusDccEx::dccExProcessRoster(char *c, int len) {
     }
 }
 
-// TODO IN PROGRESS
+// DONE
 void WitPlusDccEx::dccExProcessRosterEntry(int rosterId, String rosterName, String functionList) {
     if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessRosterEntry(): rosterName:"); console->println(rosterName); }
     
@@ -2304,7 +2480,7 @@ void WitPlusDccEx::dccExProcessRosterEntry(int rosterId, String rosterName, Stri
         if (fullyReceived) {  // have them all now
             if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRosterEntry(): all roster entries received");
             for (int i=0; i<rosterNumberOfEntries; i++) {
-                delegate->receivedRosterEntry(i, rosterNames[i], rosterIds[i], (rosterIds[i]<127) ? 'S' : 'L');
+                if (delegate) delegate->receivedRosterEntry(i, rosterNames[i], rosterIds[i], (rosterIds[i]<127) ? 'S' : 'L');
             }
         }
     }
@@ -2351,7 +2527,7 @@ int WitPlusDccEx::getLocoIndexInRoster(int rosterId) {
 
 // TODO - DELAY
 void WitPlusDccEx::dccExProcessFastClock(char *c, int len) {
-    if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts()");
+    if (logLevel>0) console->println("WiT+DccEx:: dccExProcessFastClock()");
 }
 
 // TODO
@@ -2359,7 +2535,7 @@ void WitPlusDccEx::dccExProcessRequestLocoId(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRequestLocoId()");
 }
 
-// IN PROGRESS
+// DONE
 // --- <= trackLetter state [cab]>
 void WitPlusDccEx::dccExProcessTrackManager(char *c, int len) {
     if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessTrackManager() c: "); console->println(c); }

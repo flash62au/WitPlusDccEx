@@ -1028,6 +1028,19 @@ class WitPlusDccEx
     void dccExProcessTurnouts(char *c, int len);
 
     /// @brief TBA
+    /// @param turnoutId
+    /// @param turnoutName
+    /// @param turnoutState
+    void dccExProcessTurnoutEntry(int turnoutId, String turnoutName, TurnoutState turnoutState);
+
+    /// @brief TBA
+    void clearDccExTurnouts();
+
+    /// @brief TBA
+    /// @param turnoutId
+    int getTurnoutIndexInTurnoutsList(int turnoutId);
+
+    /// @brief TBA
     /// @param c Command to process
     /// @param len length of the command
     void dccExProcessTurnoutUpdate(char *c, int len);
@@ -1107,25 +1120,36 @@ class WitPlusDccEx
 
     // DCC-EX Specific
 
+    // roster
+    bool rosterListReceived;
+    int rosterNumberOfEntries;
+    int rosterCounter;
+    int rosterIndex;
     std::vector<int> rosterIds;
     std::vector<String> rosterAddresses;
     std::vector<String> rosterNames;
     std::vector<String> rosterFunctionLabels[32];
     std::vector<boolean> rosterFunctionIsLatching[32];
     std::vector<boolean> rosterEntriesReceived;
-
+  
     // max 32 functions per loco
     bool LocomotivesFunctionIsLatching[MAX_WIT_THROTTLES][MAX_FUNCTIONS];
     bool LocomotivesFunctionStates[MAX_FUNCTIONS];
     double lastSpeedCommandSent[MAX_WIT_THROTTLES];
 
+    // turnouts/points
+    bool turnoutsListReceived;
+    int turnoutsListNumberOfEntries;
+    int turnoutsListCounter;
+    int turnoutsListIndex;
+    std::vector<int> turnoutsListIds;
+    std::vector<String> turnoutsListNames;
+    std::vector<TurnoutState> turnoutsListStates;
+    std::vector<boolean> turnoutsListEntriesReceived;
+
+    // track and power
     TrackType trackType[MAX_TRACKS];
     TrackPower trackPower[MAX_TRACKS];
-
-    bool rosterListReceived;
-    int rosterNumberOfEntries;
-    int rosterCounter;
-    int rosterIndex;
 
     // ----------------------------------------------------------------------------------- //
 
