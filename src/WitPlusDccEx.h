@@ -122,6 +122,11 @@ enum RouteState {
     RouteInconsistent = 8
 };
 
+enum RouteType {
+    RouteTypeRoute = 0,
+    RouteTypeAutomation = 1
+};
+
 enum TrackType  {
     TRACK_TYPE_NONE = 0,
     TRACK_TYPE_MAIN = 1,
@@ -965,14 +970,23 @@ class WitPlusDccEx
     /// @brief TBA
     void dccExEmergencyStop(char multiThrottle, String address);
 
-    /// @brief TBA
+    /// @brief Turn on/off all tracks
+    /// @param state TBA
 	void dccExSetTrackPower(TrackPower state);
-    /// @brief TBA
+
+    /// @brief Turn on/off a specific track letter
+    /// @param state TBA
+    /// @param track TBA
 	void dccExSetTrackPower(TrackPower state, char track);
-    /// @brief TBA
+
+    /// @brief Turn on/off a specific type of track
+    /// @param state TBA
+    /// @param track TBA
 	void dccExSetTrackPower(TrackPower state, String track);
 
-    /// @brief TBA
+    /// @brief Open/Close a Turnout/Point
+    /// @param address TBA
+    /// @param action TBA
     bool dccExSetTurnout(String address, TurnoutAction action);
 
     /// @brief TBA
@@ -1049,6 +1063,15 @@ class WitPlusDccEx
     /// @param c Command to process
     /// @param len length of the command
     void dccExProcessRoutes(char *c, int len);
+
+    /// @brief TBA
+    void clearDccExRoutes();
+
+    /// @brief TBA
+    void dccExProcessRouteEntry(int routeId, String routeName, RouteType routeType);
+
+    /// @brief TBA
+    int getRouteIndexInRoutesList(int routeId);
 
     /// @brief TBA
     /// @param c Command to process
@@ -1146,6 +1169,17 @@ class WitPlusDccEx
     std::vector<String> turnoutsListNames;
     std::vector<TurnoutState> turnoutsListStates;
     std::vector<boolean> turnoutsListEntriesReceived;
+
+    // routes/sequences
+    bool routesListReceived;
+    int routesListNumberOfEntries;
+    int routesListCounter;
+    int routesListIndex;
+    std::vector<int> routesListIds;
+    std::vector<String> routesListNames;
+    std::vector<String> routesListLabels;
+    std::vector<RouteType> routesListTypes;
+    std::vector<boolean> routesListEntriesReceived;
 
     // track and power
     TrackType trackType[MAX_TRACKS];

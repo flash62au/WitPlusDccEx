@@ -1762,7 +1762,7 @@ void WitPlusDccEx::dccExSendRequestRoutes() {
 // DONE
 void WitPlusDccEx::dccExSendRequestRouteEntry(int routeId) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExSendRequestRouteEntry()");
-    sendDelayedCommand("<JA"+String(routeId)+">");
+    sendDelayedCommand("<JA "+String(routeId)+">");
 }
 
 // DONE
@@ -1773,6 +1773,7 @@ void WitPlusDccEx::dccExSendRequestTracks() {
 
 // TODO - DELAY 
 void WitPlusDccEx::dccExSetCurrentFastTime(const String& s) {
+    if (logLevel>0) console->println("WiT+DccEx:: dccExSetCurrentFastTime()");
 }
 
 // DONE
@@ -2004,27 +2005,28 @@ void WitPlusDccEx::dccExEmergencyStop(char multiThrottle, String address) {
 }
 
 // DONE
-// turn on all tracks
+// Turn on/off all tracks
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
     sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + ">");
 }
 
 // DONE
-// turn on a specific track letter
+// Turn on/off a specific track letter
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state, char track) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
     sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + " " + String(track) + ">");
 }
 
 // DONE
-// turn on a specific type of track
+// Turn on/off a specific type of track
 void WitPlusDccEx::dccExSetTrackPower(TrackPower state, String track) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTrackPower()");
     sendDelayedCommand("<" + String((state==PowerOn) ? "1" : "0") + " " + track + ">");
 }
 
 // DONE
+// Open/Close a Turnout/Point
 bool WitPlusDccEx::dccExSetTurnout(String address, TurnoutAction action) {
     if (logLevel>2) console->println("WiT+DccEx:: dccExSetTurnout()");
 
@@ -2067,8 +2069,10 @@ bool WitPlusDccEx::dccExSetTurnout(String address, TurnoutAction action) {
     return true;
 }
 
-// TODO
+// IN PROGRESS
 bool WitPlusDccEx::dccExSetRoute(String address) {
+    String cmd = "</START " + address +">";
+    sendDelayedCommand(cmd);
     return true;
 }
 
@@ -2242,7 +2246,7 @@ TrackType WitPlusDccEx::getTrackType(String typeString) {
 // <jT>
 // <jT id1 id2 id3 ...>
 // <jT id X>
-// <jt id state ["desc"]>
+// <jT id state ["desc"]>
 void WitPlusDccEx::dccExProcessTurnouts(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts()");
 
@@ -2290,7 +2294,7 @@ void WitPlusDccEx::dccExProcessTurnouts(char *c, int len) {
             } // else ignore it if we already have it
 
         } else { // <jt id state ["desc"]>  individual turnout/point
-            if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts() Individual Loco");
+            if (logLevel>0) console->println("WiT+DccEx:: dccExProcessTurnouts() Individual turnout/point");
             String turnoutName = getParameter(c,start,len, 2);
             dccExProcessTurnoutEntry(turnoutIdString.toInt(), turnoutName, turnoutState.equals("C") ? TurnoutClosed : TurnoutThrown);
         }
@@ -2336,12 +2340,12 @@ void WitPlusDccEx::dccExProcessTurnoutEntry(int turnoutId, String turnoutName, T
 
 // DONE
 void WitPlusDccEx::clearDccExTurnouts() {
-    // if (logLevel>0) console->println("WiT+DccEx:: clearDccExRoster()");
+    // if (logLevel>0) console->println("WiT+DccEx:: clearDccExTurnouts()");
 
     turnoutsListIds.clear();
     turnoutsListNames.clear();
-    turnoutsListEntriesReceived.clear();
     turnoutsListStates.clear();
+    turnoutsListEntriesReceived.clear();
     turnoutsListNumberOfEntries = 0;
 }
 
@@ -2385,8 +2389,123 @@ void WitPlusDccEx::dccExProcessTurnoutUpdate(char *c, int len) {
 }
 
 // TODO
+// <jA>
+// <jA id0 id1 id2 ..>
+// <jA id X>
+// <jA id type ["desc"]>
 void WitPlusDccEx::dccExProcessRoutes(char *c, int len) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRoutes()");
+
+    String s(c);
+    int start = 1; // space after command
+    routesListCounter = 0;
+    int routesCount = getNumberOfParameters(c, start, len);
+
+    if (routesCount == 0) { // no defined routes/automations <jA>
+        routesListNumberOfEntries = 0;
+        clearDccExRoutes();
+        if (delegate) delegate->receivedRouteEntries(0);
+
+    } else { // routes list  <jA id1 id2 id3 ...>
+        bool isIndividualRoute = false;
+        String routeIdString = getParameter(c,start,len, 0);
+        String routeType = getParameter(c,start,len, 1);
+        if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessRoutes() routeId: "); console->print(routeIdString); console->print(" type: "); console->println(routeType); }
+
+        if ( (routesCount==3) || (routesCount== 4) ) { // possible individual
+            if (routeIdString.equals("X")) return; // unknown id
+            if ( (routeType.equals("R")) || (routeType.equals("A")) ) {
+                isIndividualRoute = true;
+            }
+        }
+        if (!isIndividualRoute) { // list
+            if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessRoutes() processing list"); }
+            
+            if (!routesListReceived) {
+                clearDccExRoutes();
+                routesListNumberOfEntries = routesCount;
+                if (delegate) delegate->receivedRouteEntries(routesCount);
+                for (int i=0; i<routesCount; i++) {
+                    int routeId = getParameter(c, start, len, i).toInt();
+                    routesListIds.push_back(routeId);
+                    routesListNames.push_back("");
+                    routesListLabels.push_back("Set");
+                    routesListEntriesReceived.push_back(false);
+                    routesListTypes.push_back(RouteTypeRoute);
+
+                    dccExSendRequestRouteEntry(routeId);
+                    if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessRoutes() id: "); console->println(routeId); }
+                }
+                routesListIndex = -1;
+
+            } // else ignore it if we already have it
+
+        } else { // <ja id type ["desc"]>  individual route/automation
+            if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRoutes() Individual route");
+            String routeName = getParameter(c,start,len, 2);
+            dccExProcessRouteEntry(routeIdString.toInt(), routeName, routeType.equals("R") ? RouteTypeRoute : RouteTypeAutomation);
+        }
+    }    
+}
+
+// IN PROGRESS
+void WitPlusDccEx::dccExProcessRouteEntry(int routeId, String routeName, RouteType routeType) {
+    if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRouteEntry()");
+
+    routesListIndex = getRouteIndexInRoutesList(routeId);
+    if (routesListIndex<0) return; // not in the list
+
+    if (logLevel>0) { console->print("WiT+DccEx:: dccExProcessRouteEntry(): routesListIndex:"); console->println(routesListIndex); }
+
+    routesListNames[routesListIndex] = routeName.substring(1,routeName.length()-2);
+    routesListTypes[routesListIndex] = routeType;
+    routesListEntriesReceived[routesListIndex] = true; 
+
+    routesListCounter++;
+    if (delegate) {
+        bool fullyReceived = true;
+        if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessRouteEntry(): check start");}
+        for (int i=0; i<routesListNumberOfEntries; i++) {
+            if (!routesListEntriesReceived[i]) {
+                fullyReceived = false;
+                break;
+            }
+        }
+
+        if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessRouteEntry(): check end");}
+
+        if (fullyReceived) {  // have them all now
+            if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRouteEntry(): all Route entries received");
+            for (int i=0; i<routesListNumberOfEntries; i++) {
+                if (delegate) delegate->receivedRouteEntry(i, String(routesListIds[i]), routesListNames[i], routesListIds[i]);
+            }
+        }
+    }
+    if (logLevel>0) { console->println("WiT+DccEx:: dccExProcessRouteEntry(): end");}
+}
+
+// DONE
+void WitPlusDccEx::clearDccExRoutes() {
+    // if (logLevel>0) console->println("WiT+DccEx:: clearDccExRoutes()");
+
+    routesListIds.clear();
+    routesListNames.clear();
+    routesListLabels.clear();
+    routesListTypes.clear();
+    routesListEntriesReceived.clear();
+    turnoutsListNumberOfEntries = 0;
+}
+
+// DONE
+int WitPlusDccEx::getRouteIndexInRoutesList(int routeId) {
+    for(int i=0;i<routesListNumberOfEntries;i++) {
+        // if (logLevel>0) { console->print("WiT+DccEx:: getRouteIndexInRoutesLst(): routesListIds[i]:"); console->println(routesListIds[i]); }
+    
+        if (routesListIds[i] == routeId) {
+            return i;
+        }
+    } 
+    return -1;
 }
 
 // TODO
