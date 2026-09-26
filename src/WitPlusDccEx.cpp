@@ -1889,13 +1889,44 @@ void WitPlusDccEx::dccExSetFunction(char multiThrottle, String address, int func
     }
 }
 
-// TODO - DELAY
-int WitPlusDccEx::dccExGetSpeedSteps(char multiThrottle) {
-    return 128;
+// DONE
+int WitPlusDccEx::dccExGetSpeedSteps() {
+    return dccExGetSpeedSteps(DEFAULT_MULTITHROTTLE);
 }
 
-// TODO - DELAY - set all the multithrottles to the same speed steps, as DCC-EX does not support different speed steps for different throttles
+// DONE
+int WitPlusDccEx::dccExGetSpeedSteps(char multiThrottle) {
+    if (logLevel>0) { console->print("WiT+DccEx:: dccExGetSpeedSteps(): "); console->println(multiThrottle); }
+
+    int multiThrottleIndex = getMultiThrottleIndex(multiThrottle);
+    return speedSteps[multiThrottleIndex];
+}
+
+//DONE
 bool WitPlusDccEx::dccExSetSpeedSteps(int steps) {
+    return dccExSetSpeedSteps(DEFAULT_MULTITHROTTLE, steps);
+}
+
+// DONE 
+bool WitPlusDccEx::dccExSetSpeedSteps(char multiThrottle, int steps) {
+    return true;
+
+    if (logLevel>0) { console->print("WiT+DccEx:: dccExSetSpeedSteps(): "); console->print(multiThrottle); console->print(" : "); console->println(steps); }
+
+    // multithrottles is ignored, 
+    // as DCC-EX does not support different speed steps for different throttles
+
+    // 1 = 128step, 2 = 28step, 4 = 27step or 8 = 14step
+    if (steps==1) { sendDelayedCommand("<D SPEED28>"); }
+    else if (steps==2) { sendDelayedCommand("<D SPEED128>"); }
+    else { // DCC-EX does not support 27 or 14 steps
+        console->print("WiT+DccEx:: setSpeedSteps(): Error, not one of the known values");
+        return false;
+    }
+
+    for (int multiThrottleIndex=0; multiThrottleIndex<MAX_WIT_THROTTLES; multiThrottleIndex++)
+        speedSteps[multiThrottleIndex] = steps;
+
     return true;
 }
 
@@ -2069,7 +2100,7 @@ bool WitPlusDccEx::dccExSetTurnout(String address, TurnoutAction action) {
     return true;
 }
 
-// IN PROGRESS
+// DONE
 bool WitPlusDccEx::dccExSetRoute(String address) {
     String cmd = "</START " + address +">";
     sendDelayedCommand(cmd);
@@ -2097,8 +2128,9 @@ void WitPlusDccEx::dccExProcessCommandStationInfo(char *c, int len) {
             if (delegate) delegate->receivedVersion(protocolVersion);
         }
 
-        String serverDescription = s.substring(versionEnd + 3, len);
-        if (delegate) delegate->receivedServerDescription(serverDescription);
+        // String serverDescription = s.substring(versionEnd + 3, len);
+        // if (delegate) delegate->receivedServerDescription(serverDescription);
+        if (delegate) delegate->receivedServerDescription(s.substring(versionEnd + 3, len));
         if (delegate) delegate->receivedServerType("DCC-EX");
     }
 }
@@ -2124,16 +2156,16 @@ void WitPlusDccEx::dccExProcessLocos(char *c, int len) {
     String speedByte = getParameter(c, start, len, 3);
     String functMap = getParameter(c, start, len, 4);
 
-    if (logLevel>2) { 
-        console->print("WiT+DccEx:: dccExProcessLocos()");
-        console->print(" loco: «");
-        console->print(loco);
-        console->print("» speedByte: «");
-        console->print(speedByte);
-        console->print("» functMap: «");
-        console->print(functMap);
-        console->println("»");
-    }
+    // if (logLevel>2) { 
+    //     console->print("WiT+DccEx:: dccExProcessLocos()");
+    //     console->print(" loco: «");
+    //     console->print(loco);
+    //     console->print("» speedByte: «");
+    //     console->print(speedByte);
+    //     console->print("» functMap: «");
+    //     console->print(functMap);
+    //     console->println("»");
+    // }
 
     for (int multiThrottleIndex=0; multiThrottleIndex<MAX_WIT_THROTTLES; multiThrottleIndex++) {
         char multiThrottle = '0'+multiThrottleIndex; 
@@ -2448,7 +2480,7 @@ void WitPlusDccEx::dccExProcessRoutes(char *c, int len) {
     }    
 }
 
-// IN PROGRESS
+// DONE
 void WitPlusDccEx::dccExProcessRouteEntry(int routeId, String routeName, RouteType routeType) {
     if (logLevel>0) console->println("WiT+DccEx:: dccExProcessRouteEntry()");
 

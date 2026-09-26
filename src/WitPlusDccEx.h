@@ -948,10 +948,16 @@ class WitPlusDccEx
     void dccExSetFunction(char multiThrottle, String address, int funcnum, bool pressed);
 
     /// @brief TBA
+    int dccExGetSpeedSteps();
+
+    /// @brief TBA
     int dccExGetSpeedSteps(char multiThrottle);
 
     /// @brief TBA
     bool dccExSetSpeedSteps(int steps);
+
+    /// @brief TBA
+    bool dccExSetSpeedSteps(char multiThrottle, int steps);
 
     /// @brief TBA
     bool dccExSetSpeed(char multiThrottle, int speed);
